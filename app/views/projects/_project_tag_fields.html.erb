@@ -1,0 +1,36 @@
+<div class="nested-fields project-tag-fields">
+  <div class="form-inline">
+    <div class="tag_from_list" style="display: inline;">
+      <%= f.select :tag, options_for_select(Tag.order(:name).map(&:name), Tag.where(id: f.object.tag_id).first.try(:name) ),{prompt: 'Choose an existing tag', label: false} %>
+    </div>
+    <%= link_to_add_association 'or create a new tag', f, :tag, class: 'add-tag' %>
+    <%= link_to_remove_association 'Cancel', f, class: 'remove-tag btn btn-default btn-xs' %>
+  </div>
+</div>
+
+<script type="text/javascript">
+	$("#tags a.add_fields").
+      data("association-insertion-position", 'before').
+      data("association-insertion-node", 'this');
+
+    $('#tags').bind('cocoon:after-insert',function(e, tag) {
+		console.log('inserting new tag ...');
+		$(".project-tag-fields a.add-tag").
+			data("association-insertion-position", 'after').
+			data("association-insertion-node", 'this');
+		$(this).find('.project-tag-fields').bind('cocoon:after-insert',function() {
+		    console.log('insert new tag ...');
+		    console.log($(this));
+		    $(this).find(".tag_from_list").remove();
+		    $(this).find("a.add_fields").hide();
+		});
+	});
+
+    $('.project-tag-fields').bind('cocoon:after-insert',function(e) {
+        console.log('replace OLD tag ...');
+        e.stopPropagation();
+        console.log($(this));
+        $(this).find(".tag_from_list").remove();
+        $(this).find("a.add_fields").hide();
+    });
+</script>
